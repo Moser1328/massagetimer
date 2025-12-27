@@ -688,6 +688,50 @@
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
         }
+
+        /* Admin User Items */
+        .admin-user-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-user-email {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .admin-user-stats {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 12px;
+        }
+
+        .admin-user-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-admin-small {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-admin-small:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -1096,15 +1140,71 @@
 
                 <!-- Admin Link (nur für Admins) -->
                 <div id="adminLink" style="display: none; margin-bottom: 20px;">
-                    <a href="admin.html" class="btn btn-secondary" style="display: block; text-align: center; text-decoration: none;">
+                    <button class="btn btn-secondary" onclick="app.showScreen('adminScreen')">
                         <span class="btn-icon">🛠️ Admin Panel öffnen</span>
-                    </a>
+                    </button>
                 </div>
 
                 <button class="btn btn-secondary" onclick="auth.logout()">
                     <span class="btn-icon">🚪 Abmelden</span>
                 </button>
             </div>
+        </div>
+
+        <!-- Admin Screen (nur für Admins) -->
+        <div id="adminScreen" class="screen">
+            <div class="app-header">
+                <h1 class="app-title" style="font-size: 28px;">🛠️ Admin Panel</h1>
+                <p class="app-subtitle">Masseur-Verwaltung</p>
+            </div>
+
+            <!-- Global Settings -->
+            <div class="glass-card">
+                <h2 style="font-size: 20px; margin-bottom: 16px;">⚙️ Globale Einstellungen</h2>
+                
+                <div class="input-group">
+                    <label>Zufallszahl Minimum (Minuten)</label>
+                    <input type="number" id="adminRandomMin" min="1" max="60" value="5">
+                </div>
+
+                <div class="input-group">
+                    <label>Zufallszahl Maximum (Minuten)</label>
+                    <input type="number" id="adminRandomMax" min="1" max="120" value="12">
+                </div>
+
+                <button class="btn btn-primary" onclick="adminPanel.saveSettings()">
+                    💾 Einstellungen speichern
+                </button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="glass-card">
+                <h2 style="font-size: 20px; margin-bottom: 16px;">📊 Übersicht</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="adminTotalUsers">0</div>
+                        <div class="stat-label">Benutzer</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="adminTotalMassages">0</div>
+                        <div class="stat-label">Massagen gesamt</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="adminTotalScheduled">0</div>
+                        <div class="stat-label">Geplante Termine</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management -->
+            <div class="glass-card">
+                <h2 style="font-size: 20px; margin-bottom: 16px;">👥 Benutzerverwaltung</h2>
+                <div id="adminUserList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="app.showScreen('profileScreen')">
+                <span class="btn-icon">← Zurück</span>
+            </button>
         </div>
     </div>
 
@@ -1413,6 +1513,170 @@
 
             setVolume(value) {
                 this.audio.volume = value / 100;
+            }
+        };
+
+        // Admin Panel Module
+        const adminPanel = {
+            async loadSettings() {
+                try {
+                    const settingsDoc = await window.firebaseModules.getDoc(
+                        window.firebaseModules.doc(window.db, 'settings', 'global')
+                    );
+                    
+                    if (settingsDoc.exists()) {
+                        const data = settingsDoc.data();
+                        document.getElementById('adminRandomMin').value = data.randomMin || 5;
+                        document.getElementById('adminRandomMax').value = data.randomMax || 12;
+                    }
+                } catch (error) {
+                    console.error('Error loading admin settings:', error);
+                }
+            },
+
+            async saveSettings() {
+                const min = parseInt(document.getElementById('adminRandomMin').value);
+                const max = parseInt(document.getElementById('adminRandomMax').value);
+
+                if (min >= max) {
+                    alert('❌ Minimum muss kleiner als Maximum sein!');
+                    return;
+                }
+
+                try {
+                    await window.firebaseModules.setDoc(
+                        window.firebaseModules.doc(window.db, 'settings', 'global'),
+                        {
+                            randomMin: min,
+                            randomMax: max,
+                            updatedAt: new Date().toISOString(),
+                            updatedBy: window.currentUser.uid
+                        }
+                    );
+
+                    alert('✅ Einstellungen gespeichert!');
+                    
+                    // Reload app settings
+                    await app.loadGlobalSettings();
+                } catch (error) {
+                    alert('❌ Fehler beim Speichern');
+                    console.error(error);
+                }
+            },
+
+            async loadStats() {
+                try {
+                    // Count users
+                    const usersSnapshot = await window.firebaseModules.getDocs(
+                        window.firebaseModules.collection(window.db, 'users')
+                    );
+                    document.getElementById('adminTotalUsers').textContent = usersSnapshot.size;
+
+                    // Count massages
+                    const massagesSnapshot = await window.firebaseModules.getDocs(
+                        window.firebaseModules.collection(window.db, 'massages')
+                    );
+                    document.getElementById('adminTotalMassages').textContent = massagesSnapshot.size;
+
+                    // Count scheduled
+                    const schedulesSnapshot = await window.firebaseModules.getDocs(
+                        window.firebaseModules.collection(window.db, 'schedules')
+                    );
+                    document.getElementById('adminTotalScheduled').textContent = schedulesSnapshot.size;
+                } catch (error) {
+                    console.error('Error loading admin stats:', error);
+                }
+            },
+
+            async loadUsers() {
+                try {
+                    const usersSnapshot = await window.firebaseModules.getDocs(
+                        window.firebaseModules.collection(window.db, 'users')
+                    );
+                    
+                    const users = [];
+                    usersSnapshot.forEach((doc) => {
+                        users.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Get massage counts for each user
+                    const massagesSnapshot = await window.firebaseModules.getDocs(
+                        window.firebaseModules.collection(window.db, 'massages')
+                    );
+                    
+                    const massageCounts = {};
+                    massagesSnapshot.forEach((doc) => {
+                        const userId = doc.data().userId;
+                        massageCounts[userId] = (massageCounts[userId] || 0) + 1;
+                    });
+
+                    const container = document.getElementById('adminUserList');
+                    
+                    if (users.length === 0) {
+                        container.innerHTML = '<div class="empty-state"><p>Keine Benutzer gefunden</p></div>';
+                        return;
+                    }
+
+                    container.innerHTML = users.map(user => `
+                        <div class="admin-user-item">
+                            <div class="admin-user-email">${user.email}</div>
+                            <div class="admin-user-stats">
+                                Massagen: ${massageCounts[user.id] || 0} | 
+                                Sondereingaben: ${user.specialInputCount || 0}/5
+                                ${user.isAdmin ? ' | 🛠️ Admin' : ''}
+                            </div>
+                            <div class="admin-user-actions">
+                                <button class="btn-admin-small" onclick="adminPanel.resetSpecialInputs('${user.id}', '${user.email}')">
+                                    🔄 Reset Eingaben
+                                </button>
+                                <button class="btn-admin-small" onclick="adminPanel.toggleAdmin('${user.id}', '${user.email}', ${!user.isAdmin})">
+                                    ${user.isAdmin ? '❌ Admin entfernen' : '✅ Als Admin'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                }
+            },
+
+            async resetSpecialInputs(userId, email) {
+                if (!confirm(`Sondereingaben für ${email} wirklich zurücksetzen?`)) return;
+
+                try {
+                    await window.firebaseModules.updateDoc(
+                        window.firebaseModules.doc(window.db, 'users', userId),
+                        { specialInputCount: 0 }
+                    );
+                    alert('✅ Sondereingaben zurückgesetzt!');
+                    this.loadUsers();
+                } catch (error) {
+                    alert('❌ Fehler beim Zurücksetzen');
+                    console.error(error);
+                }
+            },
+
+            async toggleAdmin(userId, email, makeAdmin) {
+                const action = makeAdmin ? 'als Admin hinzufügen' : 'Admin-Rechte entfernen';
+                if (!confirm(`${email} wirklich ${action}?`)) return;
+
+                try {
+                    await window.firebaseModules.updateDoc(
+                        window.firebaseModules.doc(window.db, 'users', userId),
+                        { isAdmin: makeAdmin }
+                    );
+                    alert(`✅ ${makeAdmin ? 'Admin-Rechte erteilt' : 'Admin-Rechte entzogen'}!`);
+                    this.loadUsers();
+                } catch (error) {
+                    alert('❌ Fehler beim Ändern');
+                    console.error(error);
+                }
+            },
+
+            async init() {
+                await this.loadSettings();
+                await this.loadStats();
+                await this.loadUsers();
             }
         };
 
@@ -2099,6 +2363,8 @@
                 // Load screen-specific data
                 if (screenId === 'profileScreen') {
                     profile.loadSettings();
+                } else if (screenId === 'adminScreen') {
+                    adminPanel.init();
                 }
             }
         };
