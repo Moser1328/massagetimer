@@ -667,6 +667,27 @@
             margin-top: 8px;
             text-align: center;
         }
+
+        /* Export Button */
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -1073,6 +1094,13 @@
                     <span id="userEmail" style="color: white;">-</span>
                 </div>
 
+                <!-- Admin Link (nur für Admins) -->
+                <div id="adminLink" style="display: none; margin-bottom: 20px;">
+                    <a href="admin.html" class="btn btn-secondary" style="display: block; text-align: center; text-decoration: none;">
+                        <span class="btn-icon">🛠️ Admin Panel öffnen</span>
+                    </a>
+                </div>
+
                 <button class="btn btn-secondary" onclick="auth.logout()">
                     <span class="btn-icon">🚪 Abmelden</span>
                 </button>
@@ -1109,16 +1137,16 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, addDoc, query, where, getDocs, orderBy, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // Firebase Configuration - HIER DEINE CONFIG EINFÜGEN!
-const firebaseConfig = {
-  apiKey: "AIzaSyBBWlLnBKDQ1svzKD-cnI9pskxteA63z7E",
-  authDomain: "massagetimer-44844.firebaseapp.com",
-  projectId: "massagetimer-44844",
-  storageBucket: "massagetimer-44844.firebasestorage.app",
-  messagingSenderId: "256596644726",
-  appId: "1:256596644726:web:c014a53ae6c5c0803d6057",
-  measurementId: "G-9SRF5DJM28"
-};
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBWlLnBKDQ1svzKD-cnI9pskxteA63z7E",
+            authDomain: "massagetimer-44844.firebaseapp.com",
+            projectId: "massagetimer-44844",
+            storageBucket: "massagetimer-44844.firebasestorage.app",
+            messagingSenderId: "256596644726",
+            appId: "1:256596644726:web:c014a53ae6c5c0803d6057",
+            measurementId: "G-9SRF5DJM28"
+        };
 
         const firebaseApp = initializeApp(firebaseConfig);
         const firebaseAuth = getAuth(firebaseApp);
@@ -1388,6 +1416,25 @@ const firebaseConfig = {
             }
         };
 
+        // Profile Module
+        const profile = {
+            async loadSettings() {
+                try {
+                    const userDoc = await window.firebaseModules.getDoc(
+                        window.firebaseModules.doc(window.db, 'users', window.currentUser.uid)
+                    );
+                    const userData = userDoc.data();
+                    
+                    // Show admin link if user is admin
+                    if (userData?.isAdmin) {
+                        document.getElementById('adminLink').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error loading profile settings:', error);
+                }
+            }
+        };
+
         // Calendar Module
         const calendar = {
             currentMonth: new Date().getMonth(),
@@ -1526,6 +1573,9 @@ const firebaseConfig = {
                             <div>
                                 <div class="massage-title">${s.title}</div>
                                 <div class="massage-time">${s.date} um ${s.time} Uhr • ${s.duration} Min</div>
+                                <a href="#" class="export-btn" onclick="calendar.exportToICal('${s.id}', '${s.title}', '${s.date}', '${s.time}', ${s.duration}); return false;">
+                                    📅 In Kalender exportieren
+                                </a>
                             </div>
                             <button class="btn-secondary" style="width: auto; padding: 8px 16px; margin: 0;" 
                                     onclick="calendar.deleteSchedule('${s.id}')">
@@ -1549,6 +1599,48 @@ const firebaseConfig = {
                     );
                     this.render();
                 }
+            },
+
+            exportToICal(id, title, date, time, duration) {
+                // Create iCal format
+                const startDate = new Date(date + 'T' + time);
+                const endDate = new Date(startDate.getTime() + duration * 60000);
+                
+                const formatDate = (date) => {
+                    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                };
+
+                const icsContent = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'PRODID:-//Massagetimer//DE',
+                    'BEGIN:VEVENT',
+                    `UID:massage-${id}@massagetimer.app`,
+                    `DTSTAMP:${formatDate(new Date())}`,
+                    `DTSTART:${formatDate(startDate)}`,
+                    `DTEND:${formatDate(endDate)}`,
+                    `SUMMARY:${title}`,
+                    'DESCRIPTION:Geplante Massage-Session',
+                    'STATUS:CONFIRMED',
+                    'BEGIN:VALARM',
+                    'TRIGGER:-PT15M',
+                    'ACTION:DISPLAY',
+                    'DESCRIPTION:Massage in 15 Minuten',
+                    'END:VALARM',
+                    'END:VEVENT',
+                    'END:VCALENDAR'
+                ].join('\r\n');
+
+                // Create download
+                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `massage-${date}.ics`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert('✅ Kalender-Datei heruntergeladen!\n\nÖffne die .ics Datei um den Termin zu deinem Kalender hinzuzufügen.');
             }
         };
 
@@ -1564,19 +1656,44 @@ const firebaseConfig = {
             userData: null,
             bodyParts: [],
             feedbackTags: [],
+            randomMin: 5,
+            randomMax: 12,
 
             async init() {
                 await this.loadUserData();
                 await this.checkYearRollover();
+                await this.loadGlobalSettings();
                 this.updateStartScreen();
                 this.showScreen('startScreen');
                 this.loadQuickStats();
                 document.getElementById('userEmail').textContent = window.currentUser.email;
                 this.initFeedbackTags();
+                await profile.loadSettings();
                 
                 // Request notification permission
                 if ('Notification' in window && Notification.permission === 'default') {
                     Notification.requestPermission();
+                }
+            },
+
+            async loadGlobalSettings() {
+                try {
+                    const settingsDoc = await window.firebaseModules.getDoc(
+                        window.firebaseModules.doc(window.db, 'settings', 'global')
+                    );
+                    
+                    if (settingsDoc.exists()) {
+                        const data = settingsDoc.data();
+                        this.randomMin = data.randomMin || 5;
+                        this.randomMax = data.randomMax || 12;
+                    } else {
+                        this.randomMin = 5;
+                        this.randomMax = 12;
+                    }
+                } catch (error) {
+                    console.error('Error loading global settings:', error);
+                    this.randomMin = 5;
+                    this.randomMax = 12;
                 }
             },
 
@@ -1669,7 +1786,8 @@ const firebaseConfig = {
             },
 
             startWithRandom() {
-                const duration = Math.floor(Math.random() * 8) + 5;
+                const range = this.randomMax - this.randomMin + 1;
+                const duration = Math.floor(Math.random() * range) + this.randomMin;
                 this.startWithDuration(duration);
             },
 
@@ -1977,6 +2095,11 @@ const firebaseConfig = {
                         item.classList.add('active');
                     }
                 });
+
+                // Load screen-specific data
+                if (screenId === 'profileScreen') {
+                    profile.loadSettings();
+                }
             }
         };
 
