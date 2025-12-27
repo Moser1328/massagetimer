@@ -93,6 +93,11 @@
             background: #e5e7eb;
         }
 
+        .btn-danger {
+            background: #fee;
+            color: #dc2626;
+        }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -109,7 +114,10 @@
             color: #555;
         }
 
-        input[type="number"] {
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="text"] {
             width: 100%;
             padding: 16px;
             border: 2px solid #e5e7eb;
@@ -119,7 +127,7 @@
             transition: border-color 0.3s;
         }
 
-        input[type="number"]:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -250,16 +258,6 @@
             transform: scale(0.95);
         }
 
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring-circle {
-            transition: stroke-dashoffset 0.35s;
-            stroke: #667eea;
-            stroke-width: 4;
-        }
-
         .timer-container {
             position: relative;
             width: 200px;
@@ -283,12 +281,165 @@
             font-size: 48px;
             margin-bottom: 16px;
         }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .text-link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .text-link:hover {
+            text-decoration: underline;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .user-info {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="screen active">
+            <div class="card">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Lade...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen">
+            <div class="card">
+                <h1>💆‍♂️ Massagetimer</h1>
+                <p class="subtitle">Willkommen zurück!</p>
+
+                <div id="loginError" class="error-message" style="display:none;"></div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="deine@email.de">
+                </div>
+
+                <div class="input-group">
+                    <label>Passwort</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+
+                <button class="btn btn-primary" onclick="auth.login()">Anmelden</button>
+                
+                <div class="divider">oder</div>
+
+                <button class="btn btn-secondary" onclick="auth.showRegister()">Neues Konto erstellen</button>
+
+                <p class="text-center" style="margin-top: 16px;">
+                    <a class="text-link" onclick="auth.resetPassword()">Passwort vergessen?</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Register Screen -->
+        <div id="registerScreen" class="screen">
+            <div class="card">
+                <h1>📝 Registrieren</h1>
+                <p class="subtitle">Erstelle dein kostenloses Konto</p>
+
+                <div id="registerError" class="error-message" style="display:none;"></div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="deine@email.de">
+                </div>
+
+                <div class="input-group">
+                    <label>Passwort</label>
+                    <input type="password" id="registerPassword" placeholder="Mindestens 6 Zeichen">
+                </div>
+
+                <div class="input-group">
+                    <label>Passwort wiederholen</label>
+                    <input type="password" id="registerPasswordConfirm" placeholder="••••••••">
+                </div>
+
+                <button class="btn btn-primary" onclick="auth.register()">Konto erstellen</button>
+                
+                <p class="text-center" style="margin-top: 16px;">
+                    <a class="text-link" onclick="auth.showLogin()">Bereits ein Konto? Anmelden</a>
+                </p>
+            </div>
+        </div>
+
         <!-- Start Screen -->
-        <div id="startScreen" class="screen active">
+        <div id="startScreen" class="screen">
             <div class="card">
                 <h1>💆‍♂️ Massagetimer</h1>
                 <p class="subtitle" id="todayInfo"></p>
@@ -302,7 +453,7 @@
 
             <div class="nav-buttons">
                 <button class="nav-btn" onclick="app.showScreen('statsScreen')">📊 Statistiken</button>
-                <button class="nav-btn" onclick="app.showScreen('logScreen')">📝 Verlauf</button>
+                <button class="nav-btn" onclick="app.showScreen('profileScreen')">👤 Profil</button>
             </div>
         </div>
 
@@ -386,6 +537,7 @@
                     </div>
                 </div>
 
+                <button class="btn btn-secondary" onclick="app.showScreen('logScreen')">📝 Verlauf anzeigen</button>
                 <button class="btn btn-primary" onclick="app.showScreen('startScreen')">Zurück</button>
             </div>
         </div>
@@ -401,9 +553,205 @@
                 <button class="btn btn-primary" onclick="app.showScreen('startScreen')">Zurück</button>
             </div>
         </div>
+
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="screen">
+            <div class="card">
+                <h1>👤 Profil</h1>
+                <p class="subtitle">Deine Einstellungen</p>
+
+                <div class="user-info">
+                    <strong>Email:</strong><br>
+                    <span id="userEmail">-</span>
+                </div>
+
+                <div id="profileMessage" style="display:none;"></div>
+
+                <button class="btn btn-secondary" onclick="app.showScreen('statsScreen')">📊 Statistiken</button>
+                <button class="btn btn-secondary" onclick="app.showScreen('logScreen')">📝 Verlauf</button>
+                <button class="btn btn-danger" onclick="auth.logout()">🚪 Abmelden</button>
+                <button class="btn btn-primary" onclick="app.showScreen('startScreen')">Zurück</button>
+            </div>
+        </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, where, getDocs, orderBy, doc, getDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase Configuration - HIER DEINE CONFIG EINFÜGEN!
+const firebaseConfig = {
+  apiKey: "AIzaSyBBWlLnBKDQ1svzKD-cnI9pskxteA63z7E",
+  authDomain: "massagetimer-44844.firebaseapp.com",
+  projectId: "massagetimer-44844",
+  storageBucket: "massagetimer-44844.firebasestorage.app",
+  messagingSenderId: "256596644726",
+  appId: "1:256596644726:web:c014a53ae6c5c0803d6057",
+  measurementId: "G-9SRF5DJM28"
+};
+
+        // Initialize Firebase
+        const firebaseApp = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+
+        // Make available globally
+        window.firebaseAuth = firebaseAuth;
+        window.db = db;
+        window.firebaseModules = {
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            sendPasswordResetEmail,
+            collection,
+            addDoc,
+            query,
+            where,
+            getDocs,
+            orderBy,
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc
+        };
+
+        // Auth State Listener
+        onAuthStateChanged(firebaseAuth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                auth.onAuthSuccess();
+            } else {
+                window.currentUser = null;
+                auth.showLogin();
+            }
+        });
+    </script>
+
     <script>
+        // Auth Module
+        const auth = {
+            showLogin() {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('loginScreen').classList.add('active');
+                document.getElementById('loginError').style.display = 'none';
+            },
+
+            showRegister() {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('registerScreen').classList.add('active');
+                document.getElementById('registerError').style.display = 'none';
+            },
+
+            async login() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const errorDiv = document.getElementById('loginError');
+
+                if (!email || !password) {
+                    errorDiv.textContent = 'Bitte Email und Passwort eingeben';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    await window.firebaseModules.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                } catch (error) {
+                    let message = 'Anmeldung fehlgeschlagen';
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        message = 'Email oder Passwort falsch';
+                    } else if (error.code === 'auth/invalid-email') {
+                        message = 'Ungültige Email-Adresse';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        message = 'Zu viele Versuche. Bitte später erneut versuchen.';
+                    }
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                }
+            },
+
+            async register() {
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+                const errorDiv = document.getElementById('registerError');
+
+                if (!email || !password || !passwordConfirm) {
+                    errorDiv.textContent = 'Bitte alle Felder ausfüllen';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (password !== passwordConfirm) {
+                    errorDiv.textContent = 'Passwörter stimmen nicht überein';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (password.length < 6) {
+                    errorDiv.textContent = 'Passwort muss mindestens 6 Zeichen lang sein';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const userCredential = await window.firebaseModules.createUserWithEmailAndPassword(
+                        window.firebaseAuth, 
+                        email, 
+                        password
+                    );
+                    
+                    // Create user document
+                    await window.firebaseModules.setDoc(
+                        window.firebaseModules.doc(window.db, 'users', userCredential.user.uid),
+                        {
+                            email: email,
+                            createdAt: new Date().toISOString(),
+                            specialInputCount: 0,
+                            year: new Date().getFullYear()
+                        }
+                    );
+                } catch (error) {
+                    let message = 'Registrierung fehlgeschlagen';
+                    if (error.code === 'auth/email-already-in-use') {
+                        message = 'Diese Email-Adresse wird bereits verwendet';
+                    } else if (error.code === 'auth/invalid-email') {
+                        message = 'Ungültige Email-Adresse';
+                    } else if (error.code === 'auth/weak-password') {
+                        message = 'Passwort zu schwach';
+                    }
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                }
+            },
+
+            async logout() {
+                if (confirm('Wirklich abmelden?')) {
+                    await window.firebaseModules.signOut(window.firebaseAuth);
+                }
+            },
+
+            async resetPassword() {
+                const email = prompt('Email-Adresse eingeben:');
+                if (email) {
+                    try {
+                        await window.firebaseModules.sendPasswordResetEmail(window.firebaseAuth, email);
+                        alert('Email zum Zurücksetzen wurde gesendet!');
+                    } catch (error) {
+                        alert('Fehler: Email-Adresse nicht gefunden');
+                    }
+                }
+            },
+
+            onAuthSuccess() {
+                document.getElementById('loadingScreen').classList.remove('active');
+                app.init();
+            }
+        };
+
+        // App Module
         const app = {
             currentDuration: 0,
             actualDuration: 0,
@@ -412,25 +760,36 @@
             remainingSeconds: 0,
             isPaused: false,
             totalSeconds: 0,
+            userData: null,
 
-            init() {
-                this.checkYearRollover();
+            async init() {
+                await this.loadUserData();
+                await this.checkYearRollover();
                 this.updateStartScreen();
-                this.loadStats();
-                
-                // Register service worker for PWA
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js').catch(() => {});
-                }
+                this.showScreen('startScreen');
+                document.getElementById('userEmail').textContent = window.currentUser.email;
             },
 
-            checkYearRollover() {
+            async loadUserData() {
+                const userDoc = await window.firebaseModules.getDoc(
+                    window.firebaseModules.doc(window.db, 'users', window.currentUser.uid)
+                );
+                this.userData = userDoc.data();
+            },
+
+            async checkYearRollover() {
                 const currentYear = new Date().getFullYear();
-                const savedYear = localStorage.getItem('year');
                 
-                if (savedYear !== currentYear.toString()) {
-                    localStorage.setItem('specialInputCount', '0');
-                    localStorage.setItem('year', currentYear.toString());
+                if (this.userData.year !== currentYear) {
+                    await window.firebaseModules.updateDoc(
+                        window.firebaseModules.doc(window.db, 'users', window.currentUser.uid),
+                        {
+                            specialInputCount: 0,
+                            year: currentYear
+                        }
+                    );
+                    this.userData.specialInputCount = 0;
+                    this.userData.year = currentYear;
                 }
             },
 
@@ -438,13 +797,13 @@
                 return new Date().getDay() === 0;
             },
 
-            getSpecialInputCount() {
-                return parseInt(localStorage.getItem('specialInputCount') || '0');
-            },
-
-            incrementSpecialInput() {
-                const count = this.getSpecialInputCount();
-                localStorage.setItem('specialInputCount', (count + 1).toString());
+            async incrementSpecialInput() {
+                const newCount = this.userData.specialInputCount + 1;
+                await window.firebaseModules.updateDoc(
+                    window.firebaseModules.doc(window.db, 'users', window.currentUser.uid),
+                    { specialInputCount: newCount }
+                );
+                this.userData.specialInputCount = newCount;
             },
 
             updateStartScreen() {
@@ -453,9 +812,7 @@
                 const dayName = days[today.getDay()];
                 
                 document.getElementById('todayInfo').textContent = `Heute ist ${dayName}`;
-                
-                const specialCount = this.getSpecialInputCount();
-                document.getElementById('specialInputCount').textContent = `${5 - specialCount}`;
+                document.getElementById('specialInputCount').textContent = `${5 - this.userData.specialInputCount}`;
                 
                 let html = '';
                 
@@ -479,7 +836,7 @@
                         </button>
                     `;
                     
-                    if (specialCount < 5) {
+                    if (this.userData.specialInputCount < 5) {
                         html += `
                             <button class="btn btn-secondary" onclick="app.showManualInput()">
                                 ✏️ Eigene Dauer eingeben
@@ -512,15 +869,15 @@
             },
 
             startWithRandom() {
-                const duration = Math.floor(Math.random() * 8) + 5; // 5-12
+                const duration = Math.floor(Math.random() * 8) + 5;
                 this.startWithDuration(duration);
             },
 
-            startWithManual() {
+            async startWithManual() {
                 const duration = document.getElementById('manualDuration').value;
                 if (duration && duration > 0) {
                     if (!this.isSunday()) {
-                        this.incrementSpecialInput();
+                        await this.incrementSpecialInput();
                     }
                     this.startWithDuration(duration);
                 }
@@ -585,12 +942,10 @@
             timerComplete() {
                 clearInterval(this.timerInterval);
                 
-                // Vibration if supported
                 if (navigator.vibrate) {
                     navigator.vibrate([200, 100, 200]);
                 }
                 
-                // Notification if supported
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('Massage beendet!', {
                         body: `${this.currentDuration} Minuten sind um 🎉`
@@ -620,7 +975,6 @@
             selectRating(rating) {
                 this.selectedRating = rating;
                 
-                // Update UI
                 document.querySelectorAll('.rating-btn').forEach((btn, index) => {
                     if (index + 1 <= rating) {
                         btn.classList.add('selected');
@@ -632,30 +986,42 @@
                 document.getElementById('submitRating').disabled = false;
             },
 
-            submitRating() {
+            async submitRating() {
                 const entry = {
+                    userId: window.currentUser.uid,
                     date: new Date().toISOString(),
                     duration: this.actualDuration,
                     rating: this.selectedRating,
                     isSunday: this.isSunday()
                 };
                 
-                // Save to localStorage
-                const logs = JSON.parse(localStorage.getItem('massageLogs') || '[]');
-                logs.unshift(entry);
-                localStorage.setItem('massageLogs', JSON.stringify(logs));
-                
-                // Show success message
-                alert(`✅ Gespeichert!\n${this.actualDuration} Min • ${this.selectedRating} ⭐`);
-                
-                // Reset and go back
-                this.selectedRating = 0;
-                this.updateStartScreen();
-                this.showScreen('startScreen');
+                try {
+                    await window.firebaseModules.addDoc(
+                        window.firebaseModules.collection(window.db, 'massages'),
+                        entry
+                    );
+                    
+                    alert(`✅ Gespeichert!\n${this.actualDuration} Min • ${this.selectedRating} ⭐`);
+                    
+                    this.selectedRating = 0;
+                    this.updateStartScreen();
+                    this.showScreen('startScreen');
+                } catch (error) {
+                    alert('Fehler beim Speichern. Bitte erneut versuchen.');
+                }
             },
 
-            loadStats() {
-                const logs = JSON.parse(localStorage.getItem('massageLogs') || '[]');
+            async loadStats() {
+                const q = window.firebaseModules.query(
+                    window.firebaseModules.collection(window.db, 'massages'),
+                    window.firebaseModules.where('userId', '==', window.currentUser.uid)
+                );
+                
+                const querySnapshot = await window.firebaseModules.getDocs(q);
+                const logs = [];
+                querySnapshot.forEach((doc) => {
+                    logs.push(doc.data());
+                });
                 
                 if (logs.length === 0) {
                     document.getElementById('totalSessions').textContent = '0';
@@ -676,8 +1042,19 @@
                 document.getElementById('avgRating').textContent = avgRating;
             },
 
-            loadLog() {
-                const logs = JSON.parse(localStorage.getItem('massageLogs') || '[]');
+            async loadLog() {
+                const q = window.firebaseModules.query(
+                    window.firebaseModules.collection(window.db, 'massages'),
+                    window.firebaseModules.where('userId', '==', window.currentUser.uid),
+                    window.firebaseModules.orderBy('date', 'desc')
+                );
+                
+                const querySnapshot = await window.firebaseModules.getDocs(q);
+                const logs = [];
+                querySnapshot.forEach((doc) => {
+                    logs.push(doc.data());
+                });
+                
                 const container = document.getElementById('logEntries');
                 
                 if (logs.length === 0) {
@@ -730,11 +1107,6 @@
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
     </script>
 </body>
 </html>
