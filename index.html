@@ -131,7 +131,95 @@
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            padding-top: 90px;
             padding-bottom: 100px;
+        }
+
+        /* Top Status Bar */
+        .top-status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.12) 0%, 
+                rgba(255, 255, 255, 0.08) 100%);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .top-status-bar.scrolled {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.15) 0%, 
+                rgba(255, 255, 255, 0.1) 100%);
+        }
+
+        .status-bar-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-username {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-username-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .status-crystals-mini {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .crystal-mini {
+            width: 20px;
+            height: 20px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .crystal-mini.available .crystal-gem {
+            fill: url(#crystalGradient);
+            animation: crystal-pulse-mini 2s ease-in-out infinite;
+        }
+
+        .crystal-mini.used .crystal-gem {
+            fill: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes crystal-pulse-mini {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .status-crystals-count {
+            font-size: 13px;
+            font-weight: 700;
+            color: #667eea;
+            text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            margin-left: 4px;
         }
 
         /* Special Inputs - Gamified Display */
@@ -692,39 +780,98 @@
             right: 20px;
             max-width: 600px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 12px;
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.7) 0%, 
+                rgba(0, 0, 0, 0.6) 100%);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 28px;
+            padding: 14px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+        }
+
+        .bottom-nav.scrolled {
+            bottom: 10px;
+            padding: 10px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                rgba(0, 0, 0, 0.7) 100%);
         }
 
         .nav-item {
-            padding: 12px;
-            border-radius: 16px;
+            padding: 14px 12px;
+            border-radius: 18px;
             background: transparent;
             border: none;
             color: rgba(255, 255, 255, 0.6);
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 18px;
+        }
+
+        .nav-item:hover::before {
+            opacity: 1;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .nav-item.active {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            background: linear-gradient(135deg, 
+                rgba(102, 126, 234, 0.5) 0%, 
+                rgba(118, 75, 162, 0.5) 100%);
             color: white;
+            box-shadow: 
+                0 4px 16px rgba(102, 126, 234, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .bottom-nav.scrolled .nav-item {
+            padding: 10px 8px;
+            font-size: 22px;
         }
 
         .nav-label {
             font-size: 10px;
             font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .bottom-nav.scrolled .nav-label {
+            font-size: 9px;
         }
 
         /* Animations */
@@ -1000,6 +1147,81 @@
             transform: translateY(-1px);
         }
 
+        /* Countdown Screen */
+        .countdown-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            padding: 40px 20px;
+        }
+
+        .countdown-icon {
+            font-size: 80px;
+            animation: countdown-breathe 2s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes countdown-breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .countdown-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .countdown-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .countdown-number {
+            font-size: 120px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 60px rgba(102, 126, 234, 0.8);
+            animation: countdown-pulse 1s ease-in-out infinite;
+            margin-bottom: 40px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @keyframes countdown-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        .countdown-progress-bar {
+            width: 100%;
+            max-width: 300px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .countdown-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            width: 100%;
+            transition: width 1s linear;
+        }
+
         /* Massage Animations */
         .animation-selector {
             flex: 1;
@@ -1079,21 +1301,27 @@
         /* Waves Animation */
         .wave {
             animation: wave-pulse 3s ease-out infinite;
+            stroke-width: 3;
         }
 
         .wave1 { animation-delay: 0s; }
-        .wave2 { animation-delay: 0.5s; }
-        .wave3 { animation-delay: 1s; }
-        .wave4 { animation-delay: 1.5s; }
+        .wave2 { animation-delay: 0.75s; }
+        .wave3 { animation-delay: 1.5s; }
+        .wave4 { animation-delay: 2.25s; }
 
         @keyframes wave-pulse {
             0% {
                 r: 40;
-                opacity: 1;
+                opacity: 0.8;
+                stroke-width: 3;
+            }
+            50% {
+                opacity: 0.5;
             }
             100% {
-                r: 140;
+                r: 145;
                 opacity: 0;
+                stroke-width: 1;
             }
         }
 
@@ -1212,6 +1440,19 @@
     </style>
 </head>
 <body>
+    <!-- Top Status Bar -->
+    <div class="top-status-bar" id="topStatusBar">
+        <div class="status-bar-content">
+            <div class="status-username">
+                <div class="status-username-icon">👤</div>
+                <span id="statusUsername">User</span>
+            </div>
+            <div class="status-crystals-mini" id="statusCrystalsMini">
+                <!-- Crystals will be rendered here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Background Waves Animation -->
     <div class="background-waves">
         <svg class="wave-layer wave1" viewBox="0 0 1200 600" preserveAspectRatio="none">
@@ -1454,6 +1695,22 @@
                 </button>
                 <button class="btn btn-secondary" onclick="app.showScreen('bodySelectionScreen')">
                     <span class="btn-icon">← Zurück</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Countdown Screen -->
+        <div id="countdownScreen" class="screen">
+            <div class="countdown-container">
+                <div class="countdown-icon">🧘</div>
+                <h2 class="countdown-title">Mach es dir bequem</h2>
+                <p class="countdown-subtitle">Die Massage startet in...</p>
+                <div class="countdown-number" id="countdownNumber">10</div>
+                <div class="countdown-progress-bar">
+                    <div class="countdown-progress-fill" id="countdownProgressFill"></div>
+                </div>
+                <button class="btn btn-secondary" onclick="app.skipCountdown()" style="max-width: 200px; margin: 20px auto 0;">
+                    <span class="btn-icon">⏭️ Überspringen</span>
                 </button>
             </div>
         </div>
@@ -2612,10 +2869,57 @@
                 this.initFeedbackTags();
                 await profile.loadSettings();
                 
+                // Update Status Bar
+                this.updateStatusBar();
+                
+                // Init Scroll Handlers
+                this.initScrollHandlers();
+                
                 // Request notification permission
                 if ('Notification' in window && Notification.permission === 'default') {
                     Notification.requestPermission();
                 }
+            },
+
+            updateStatusBar() {
+                const username = window.currentUser.email.split('@')[0];
+                document.getElementById('statusUsername').textContent = username;
+                
+                // Render mini crystals
+                const container = document.getElementById('statusCrystalsMini');
+                const available = 5 - this.userData.specialInputCount;
+                
+                let html = '';
+                for (let i = 0; i < 5; i++) {
+                    const isAvailable = i < available;
+                    html += `
+                        <svg class="crystal-mini ${isAvailable ? 'available' : 'used'}" viewBox="0 0 100 100">
+                            <path class="crystal-gem" d="M50,10 L70,35 L60,90 L40,90 L30,35 Z"/>
+                        </svg>
+                    `;
+                }
+                html += `<span class="status-crystals-count">${available}</span>`;
+                container.innerHTML = html;
+            },
+
+            initScrollHandlers() {
+                let lastScroll = 0;
+                const topBar = document.getElementById('topStatusBar');
+                const bottomNav = document.querySelector('.bottom-nav');
+                
+                window.addEventListener('scroll', () => {
+                    const currentScroll = window.pageYOffset;
+                    
+                    if (currentScroll > 50) {
+                        topBar.classList.add('scrolled');
+                        bottomNav.classList.add('scrolled');
+                    } else {
+                        topBar.classList.remove('scrolled');
+                        bottomNav.classList.remove('scrolled');
+                    }
+                    
+                    lastScroll = currentScroll;
+                });
             },
 
             async loadGlobalSettings() {
@@ -2784,11 +3088,51 @@
                 this.remainingSeconds = this.totalSeconds;
                 this.isPaused = false;
                 
+                // Start countdown first
+                this.startCountdown();
+            },
+
+            startCountdown() {
+                let count = 10;
+                this.showScreen('countdownScreen');
+                
+                const countdownNumber = document.getElementById('countdownNumber');
+                const progressFill = document.getElementById('countdownProgressFill');
+                
+                const countdownInterval = setInterval(() => {
+                    count--;
+                    countdownNumber.textContent = count;
+                    progressFill.style.width = ((10 - count) / 10 * 100) + '%';
+                    
+                    if (count <= 0) {
+                        clearInterval(countdownInterval);
+                        this.startMassageWithTransition();
+                    }
+                }, 1000);
+                
+                // Store interval for skip functionality
+                this.countdownInterval = countdownInterval;
+            },
+
+            skipCountdown() {
+                if (this.countdownInterval) {
+                    clearInterval(this.countdownInterval);
+                    this.countdownInterval = null;
+                }
+                this.startMassageWithTransition();
+            },
+
+            startMassageWithTransition() {
+                // Smooth transition to timer
                 this.showScreen('timerScreen');
                 timerAnimation.loadPreference();
                 this.displaySelectedParts();
-                this.startTimer();
-                music.play();
+                
+                // Slight delay for screen transition
+                setTimeout(() => {
+                    this.startTimer();
+                    music.play();
+                }, 300);
             },
 
             displaySelectedParts() {
@@ -2855,6 +3199,9 @@
 
             async timerComplete() {
                 clearInterval(this.timerInterval);
+                
+                // Stop music
+                music.stop();
                 
                 // Strong vibration pattern
                 if (navigator.vibrate) {
