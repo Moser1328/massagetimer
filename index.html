@@ -29,23 +29,101 @@
             min-height: 100vh;
             color: white;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Glassmorphism Card */
+        /* Background Wave Animation */
+        .background-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .wave-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+        }
+
+        .wave-layer path {
+            animation: wave-drift 20s ease-in-out infinite;
+        }
+
+        .wave-layer.wave1 { opacity: 0.3; }
+        .wave-layer.wave2 { 
+            opacity: 0.2; 
+            animation-delay: -5s;
+        }
+        .wave-layer.wave3 { 
+            opacity: 0.15; 
+            animation-delay: -10s;
+        }
+
+        @keyframes wave-drift {
+            0%, 100% {
+                transform: translateX(0) translateY(0);
+            }
+            50% {
+                transform: translateX(-25%) translateY(-5%);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Liquid Glass Card */
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 32px;
+            border: 1.5px solid rgba(255, 255, 255, 0.18);
             padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.37),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            transition: left 0.7s;
+        }
+
+        .glass-card:hover::before {
+            left: 100%;
         }
 
         .glass-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
         /* Container */
@@ -54,6 +132,141 @@
             margin: 0 auto;
             padding: 20px;
             padding-bottom: 100px;
+        }
+
+        /* Special Inputs - Gamified Display */
+        .special-inputs-container {
+            background: linear-gradient(135deg, 
+                rgba(102, 126, 234, 0.15) 0%, 
+                rgba(118, 75, 162, 0.15) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .special-inputs-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: rotate-glow 10s linear infinite;
+        }
+
+        @keyframes rotate-glow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .special-inputs-label {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: white;
+            text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .special-inputs-crystals {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .crystal {
+            width: 48px;
+            height: 48px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .crystal.available {
+            animation: crystal-float 3s ease-in-out infinite;
+        }
+
+        .crystal.available:nth-child(1) { animation-delay: 0s; }
+        .crystal.available:nth-child(2) { animation-delay: 0.2s; }
+        .crystal.available:nth-child(3) { animation-delay: 0.4s; }
+        .crystal.available:nth-child(4) { animation-delay: 0.6s; }
+        .crystal.available:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes crystal-float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-8px) rotate(5deg);
+            }
+        }
+
+        .crystal svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .crystal.available .crystal-gem {
+            fill: url(#crystalGradient);
+            filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.8));
+            animation: crystal-pulse 2s ease-in-out infinite;
+        }
+
+        .crystal.used .crystal-gem {
+            fill: rgba(255, 255, 255, 0.15);
+            filter: none;
+        }
+
+        @keyframes crystal-pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .crystal.available .crystal-shine {
+            opacity: 1;
+            animation: shine-sparkle 2s ease-in-out infinite;
+        }
+
+        .crystal.used .crystal-shine {
+            opacity: 0;
+        }
+
+        @keyframes shine-sparkle {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .special-inputs-text {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        #specialInputsAvailable {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
         }
 
         /* Header */
@@ -83,11 +296,11 @@
             width: 100%;
             padding: 18px 24px;
             border: none;
-            border-radius: 16px;
+            border-radius: 20px;
             font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 12px;
             font-family: inherit;
             position: relative;
@@ -102,7 +315,7 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
@@ -113,25 +326,40 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, 
+                rgba(102, 126, 234, 0.9) 0%, 
+                rgba(118, 75, 162, 0.9) 100%);
             color: white;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            box-shadow: 
+                0 8px 24px rgba(102, 126, 234, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
         }
 
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 16px 32px rgba(102, 126, 234, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.15) 0%, 
+                rgba(255, 255, 255, 0.1) 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         .btn-icon {
@@ -151,27 +379,35 @@
         textarea {
             width: 100%;
             padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
             font-size: 16px;
             font-family: inherit;
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.08) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
             color: white;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             transition: all 0.3s;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         input::placeholder,
         textarea::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.5);
         }
 
         input:focus,
         textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.12) 0%, 
+                rgba(255, 255, 255, 0.08) 100%);
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.15),
+                inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
         textarea {
@@ -189,18 +425,6 @@
             display: block;
         }
 
-        /* Timer Display */
-        .timer-display {
-            font-size: 72px;
-            font-weight: 700;
-            text-align: center;
-            margin: 40px 0;
-            color: white;
-            font-variant-numeric: tabular-nums;
-            text-shadow: 0 0 40px rgba(102, 126, 234, 0.5);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
         /* Body Map */
         .body-map {
             display: grid;
@@ -211,24 +435,53 @@
 
         .body-part {
             padding: 20px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.08) 0%, 
+                rgba(255, 255, 255, 0.04) 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+        }
+
+        .body-part::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .body-part:hover::before {
+            opacity: 1;
+            animation: rotate-glow 3s linear infinite;
         }
 
         .body-part:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.08) translateY(-4px);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.12) 0%, 
+                rgba(255, 255, 255, 0.08) 100%);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .body-part.selected {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, 
+                rgba(102, 126, 234, 0.4) 0%, 
+                rgba(118, 75, 162, 0.4) 100%);
+            border-color: #667eea;
+            box-shadow: 
+                0 0 30px rgba(102, 126, 234, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
         }
 
         .body-part .icon {
@@ -375,11 +628,44 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
             padding: 24px;
-            border-radius: 20px;
+            border-radius: 24px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            transition: left 0.6s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 
+                0 12px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .stat-value {
@@ -515,30 +801,6 @@
             color: #bbf7d0;
         }
 
-        /* Progress Ring */
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring-circle {
-            transition: stroke-dashoffset 0.35s;
-            stroke: var(--primary);
-            stroke-width: 6;
-        }
-
-        .timer-container {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            margin: 40px auto;
-        }
-
-        .timer-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
         /* Scheduled Massages */
         .massage-list {
             display: flex;
@@ -585,8 +847,13 @@
                 font-size: 36px;
             }
             
-            .timer-display {
-                font-size: 56px;
+            .timer-display-overlay {
+                font-size: 48px;
+            }
+
+            .timer-animation-container {
+                width: 280px;
+                height: 280px;
             }
 
             .stats-grid {
@@ -732,9 +999,260 @@
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
         }
+
+        /* Massage Animations */
+        .animation-selector {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .animation-selector:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .animation-selector.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .timer-animation-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
+        }
+
+        .massage-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .massage-animation.active {
+            opacity: 1;
+        }
+
+        .massage-animation svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .timer-display-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 56px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+            z-index: 10;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Waves Animation */
+        .wave {
+            animation: wave-pulse 3s ease-out infinite;
+        }
+
+        .wave1 { animation-delay: 0s; }
+        .wave2 { animation-delay: 0.5s; }
+        .wave3 { animation-delay: 1s; }
+        .wave4 { animation-delay: 1.5s; }
+
+        @keyframes wave-pulse {
+            0% {
+                r: 40;
+                opacity: 1;
+            }
+            100% {
+                r: 140;
+                opacity: 0;
+            }
+        }
+
+        /* Hands Animation */
+        .hand {
+            animation: hand-massage 2s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .hand-left {
+            animation-delay: 0s;
+        }
+
+        .hand-right {
+            animation-delay: 1s;
+        }
+
+        .hand-glow {
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes hand-massage {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% {
+                opacity: 0.2;
+                r: 30;
+            }
+            50% {
+                opacity: 0.6;
+                r: 40;
+            }
+        }
+
+        /* Energy Flow Animation */
+        .energy-line {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: energy-flow 3s linear infinite;
+        }
+
+        .energy1 { animation-delay: 0s; }
+        .energy2 { animation-delay: 0.5s; }
+        .energy3 { animation-delay: 1s; }
+
+        @keyframes energy-flow {
+            0% {
+                stroke-dashoffset: 200;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .energy-particle {
+            animation: particle-move 3s ease-in-out infinite;
+        }
+
+        .ep1 { animation-delay: 0s; }
+        .ep2 { animation-delay: 0.5s; }
+        .ep3 { animation-delay: 1s; }
+
+        @keyframes particle-move {
+            0% {
+                cy: 50;
+                opacity: 1;
+            }
+            100% {
+                cy: 250;
+                opacity: 0;
+            }
+        }
+
+        /* Zen Circles Animation */
+        .zen-circle {
+            animation: zen-breathe 4s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .zc1 { animation-delay: 0s; }
+        .zc2 { animation-delay: 0.3s; }
+        .zc3 { animation-delay: 0.6s; }
+
+        @keyframes zen-breathe {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.15);
+                opacity: 0.6;
+            }
+        }
+
+        .zen-center {
+            animation: zen-center-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes zen-center-pulse {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Background Waves Animation -->
+    <div class="background-waves">
+        <svg class="wave-layer wave1" viewBox="0 0 1200 600" preserveAspectRatio="none">
+            <path d="M0,300 Q300,200 600,300 T1200,300 L1200,600 L0,600 Z" 
+                  fill="url(#waveGradient1)" opacity="0.3"/>
+        </svg>
+        <svg class="wave-layer wave2" viewBox="0 0 1200 600" preserveAspectRatio="none">
+            <path d="M0,350 Q300,250 600,350 T1200,350 L1200,600 L0,600 Z" 
+                  fill="url(#waveGradient2)" opacity="0.2"/>
+        </svg>
+        <svg class="wave-layer wave3" viewBox="0 0 1200 600" preserveAspectRatio="none">
+            <path d="M0,400 Q300,300 600,400 T1200,400 L1200,600 L0,600 Z" 
+                  fill="url(#waveGradient3)" opacity="0.15"/>
+        </svg>
+        
+        <!-- SVG Gradients -->
+        <svg style="position: absolute; width: 0; height: 0;">
+            <defs>
+                <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.1" />
+                </linearGradient>
+                <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#764ba2;stop-opacity:0.2" />
+                    <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.05" />
+                </linearGradient>
+                <linearGradient id="waveGradient3" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.15" />
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0" />
+                </linearGradient>
+                
+                <!-- Crystal Gradient -->
+                <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#a78bfa;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
     <div class="container">
         <!-- Loading Screen -->
         <div id="loadingScreen" class="screen active">
@@ -828,8 +1346,17 @@
             </div>
 
             <div class="glass-card">
-                <div class="message" id="specialInputInfo" style="background: rgba(102, 126, 234, 0.2); border: 1px solid rgba(102, 126, 234, 0.4); color: #c7d2fe;">
-                    <strong>Sondereingaben:</strong> <span id="specialInputCount">0</span> von 5 verfügbar
+                <!-- Special Inputs Display (Gamified) -->
+                <div class="special-inputs-container">
+                    <div class="special-inputs-label">
+                        💎 Sondereingaben
+                    </div>
+                    <div class="special-inputs-crystals" id="specialInputsCrystals">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    <div class="special-inputs-text">
+                        <span id="specialInputsAvailable">5</span> verfügbar
+                    </div>
                 </div>
 
                 <div id="durationOptions"></div>
@@ -939,12 +1466,111 @@
             </div>
 
             <div class="glass-card">
-                <div class="timer-container">
-                    <svg class="timer-svg" width="250" height="250">
-                        <circle stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="transparent" r="117" cx="125" cy="125"/>
-                        <circle id="progressCircle" class="progress-ring-circle" stroke="#667eea" stroke-width="6" fill="transparent" r="117" cx="125" cy="125" style="stroke-dasharray: 735.13; stroke-dashoffset: 0; transform-origin: center; transform: rotate(-90deg);"/>
-                    </svg>
-                    <div class="timer-display" id="timerDisplay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">00:00</div>
+                <!-- Animation Selection -->
+                <div style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto;">
+                    <button class="animation-selector active" data-animation="waves" onclick="timerAnimation.setAnimation('waves')">
+                        🌊 Wellen
+                    </button>
+                    <button class="animation-selector" data-animation="hands" onclick="timerAnimation.setAnimation('hands')">
+                        💆 Hände
+                    </button>
+                    <button class="animation-selector" data-animation="energy" onclick="timerAnimation.setAnimation('energy')">
+                        ✨ Energie
+                    </button>
+                    <button class="animation-selector" data-animation="zen" onclick="timerAnimation.setAnimation('zen')">
+                        🧘 Zen
+                    </button>
+                </div>
+
+                <!-- Animation Canvas -->
+                <div class="timer-animation-container">
+                    <!-- Waves Animation -->
+                    <div id="wavesAnimation" class="massage-animation active">
+                        <svg width="300" height="300" viewBox="0 0 300 300">
+                            <defs>
+                                <radialGradient id="waveGradient">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.3" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0" />
+                                </radialGradient>
+                            </defs>
+                            <circle class="wave wave1" cx="150" cy="150" r="40" fill="none" stroke="url(#waveGradient)" stroke-width="2"/>
+                            <circle class="wave wave2" cx="150" cy="150" r="40" fill="none" stroke="url(#waveGradient)" stroke-width="2"/>
+                            <circle class="wave wave3" cx="150" cy="150" r="40" fill="none" stroke="url(#waveGradient)" stroke-width="2"/>
+                            <circle class="wave wave4" cx="150" cy="150" r="40" fill="none" stroke="url(#waveGradient)" stroke-width="2"/>
+                        </svg>
+                    </div>
+
+                    <!-- Hands Animation -->
+                    <div id="handsAnimation" class="massage-animation">
+                        <svg width="300" height="300" viewBox="0 0 300 300">
+                            <defs>
+                                <linearGradient id="handGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea"/>
+                                    <stop offset="100%" style="stop-color:#764ba2"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Left Hand -->
+                            <g class="hand hand-left">
+                                <path d="M 80 140 Q 90 120 100 140 Q 110 120 120 140 Q 130 120 140 140 L 135 180 Q 130 190 110 190 Q 90 190 85 180 Z" 
+                                      fill="url(#handGradient)" opacity="0.7"/>
+                            </g>
+                            <!-- Right Hand -->
+                            <g class="hand hand-right">
+                                <path d="M 220 140 Q 210 120 200 140 Q 190 120 180 140 Q 170 120 160 140 L 165 180 Q 170 190 190 190 Q 210 190 215 180 Z" 
+                                      fill="url(#handGradient)" opacity="0.7"/>
+                            </g>
+                            <!-- Center Glow -->
+                            <circle class="hand-glow" cx="150" cy="160" r="30" fill="#667eea" opacity="0.3"/>
+                        </svg>
+                    </div>
+
+                    <!-- Energy Flow Animation -->
+                    <div id="energyAnimation" class="massage-animation">
+                        <svg width="300" height="300" viewBox="0 0 300 300">
+                            <defs>
+                                <linearGradient id="energyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea"/>
+                                    <stop offset="100%" style="stop-color:#764ba2"/>
+                                </linearGradient>
+                            </defs>
+                            <path class="energy-line energy1" d="M 150 50 Q 170 150 150 250" 
+                                  stroke="url(#energyGradient)" stroke-width="3" fill="none" opacity="0.8"/>
+                            <path class="energy-line energy2" d="M 100 80 Q 140 150 100 220" 
+                                  stroke="url(#energyGradient)" stroke-width="2" fill="none" opacity="0.6"/>
+                            <path class="energy-line energy3" d="M 200 80 Q 160 150 200 220" 
+                                  stroke="url(#energyGradient)" stroke-width="2" fill="none" opacity="0.6"/>
+                            <circle class="energy-particle ep1" cx="150" cy="50" r="4" fill="#667eea"/>
+                            <circle class="energy-particle ep2" cx="100" cy="80" r="3" fill="#764ba2"/>
+                            <circle class="energy-particle ep3" cx="200" cy="80" r="3" fill="#667eea"/>
+                        </svg>
+                    </div>
+
+                    <!-- Zen Circles Animation -->
+                    <div id="zenAnimation" class="massage-animation">
+                        <svg width="300" height="300" viewBox="0 0 300 300">
+                            <defs>
+                                <radialGradient id="zenGradient">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.8" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.2" />
+                                </radialGradient>
+                            </defs>
+                            <circle class="zen-circle zc1" cx="150" cy="150" r="50" fill="none" stroke="url(#zenGradient)" stroke-width="2"/>
+                            <circle class="zen-circle zc2" cx="150" cy="150" r="80" fill="none" stroke="url(#zenGradient)" stroke-width="1.5"/>
+                            <circle class="zen-circle zc3" cx="150" cy="150" r="110" fill="none" stroke="url(#zenGradient)" stroke-width="1"/>
+                            <circle class="zen-center" cx="150" cy="150" r="20" fill="url(#zenGradient)"/>
+                        </svg>
+                    </div>
+
+                    <!-- Timer Display Overlay -->
+                    <div class="timer-display-overlay" id="timerDisplay">00:00</div>
+                    <div class="timer-progress-ring">
+                        <svg width="300" height="300" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%);">
+                            <circle id="progressCircle" class="progress-ring-circle" 
+                                    stroke="rgba(102, 126, 234, 0.3)" stroke-width="4" fill="transparent" 
+                                    r="140" cx="150" cy="150" 
+                                    style="stroke-dasharray: 879.65; stroke-dashoffset: 0; transform-origin: center; transform: rotate(-90deg);"/>
+                        </svg>
+                    </div>
                 </div>
 
                 <div id="selectedPartsDisplay" style="text-align: center; margin: 20px 0; color: rgba(255,255,255,0.7);"></div>
@@ -1516,6 +2142,39 @@
             }
         };
 
+        // Timer Animation Module
+        const timerAnimation = {
+            currentAnimation: 'waves',
+
+            setAnimation(animationType) {
+                this.currentAnimation = animationType;
+                
+                // Update active button
+                document.querySelectorAll('.animation-selector').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.animation === animationType) {
+                        btn.classList.add('active');
+                    }
+                });
+
+                // Update active animation
+                document.querySelectorAll('.massage-animation').forEach(anim => {
+                    anim.classList.remove('active');
+                });
+                document.getElementById(animationType + 'Animation').classList.add('active');
+
+                // Save preference
+                localStorage.setItem('preferredAnimation', animationType);
+            },
+
+            loadPreference() {
+                const saved = localStorage.getItem('preferredAnimation');
+                if (saved) {
+                    this.setAnimation(saved);
+                }
+            }
+        };
+
         // Admin Panel Module
         const adminPanel = {
             async loadSettings() {
@@ -2018,7 +2677,9 @@
                 const dayName = days[today.getDay()];
                 
                 document.getElementById('todayInfo').textContent = `Heute ist ${dayName}`;
-                document.getElementById('specialInputCount').textContent = `${5 - this.userData.specialInputCount}`;
+                
+                // Update crystals display
+                this.renderCrystals();
                 
                 let html = '';
                 
@@ -2038,7 +2699,7 @@
                 } else {
                     html = `
                         <button class="btn btn-primary" onclick="app.startWithRandom()">
-                            <span class="btn-icon">🎲 Zufallsdauer (5-12 Min)</span>
+                            <span class="btn-icon">🎲 Zufallsdauer (${this.randomMin}-${this.randomMax} Min)</span>
                         </button>
                     `;
                     
@@ -2062,6 +2723,34 @@
                 }
                 
                 document.getElementById('durationOptions').innerHTML = html;
+            },
+
+            renderCrystals() {
+                const container = document.getElementById('specialInputsCrystals');
+                const available = 5 - this.userData.specialInputCount;
+                
+                document.getElementById('specialInputsAvailable').textContent = available;
+                
+                let html = '';
+                for (let i = 0; i < 5; i++) {
+                    const isAvailable = i < available;
+                    html += `
+                        <div class="crystal ${isAvailable ? 'available' : 'used'}">
+                            <svg viewBox="0 0 100 100">
+                                <!-- Diamond/Crystal Shape -->
+                                <path class="crystal-gem" d="M50,10 L70,35 L60,90 L40,90 L30,35 Z"/>
+                                <path class="crystal-shine" d="M45,15 L50,10 L55,15 L52,25 L48,25 Z" 
+                                      fill="rgba(255,255,255,0.6)"/>
+                                <!-- Facets -->
+                                <line x1="30" y1="35" x2="50" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                <line x1="70" y1="35" x2="50" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                <line x1="50" y1="10" x2="40" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                <line x1="50" y1="10" x2="60" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                            </svg>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
             },
 
             showManualInput() {
@@ -2096,6 +2785,7 @@
                 this.isPaused = false;
                 
                 this.showScreen('timerScreen');
+                timerAnimation.loadPreference();
                 this.displaySelectedParts();
                 this.startTimer();
                 music.play();
@@ -2137,10 +2827,11 @@
 
             updateProgressRing() {
                 const circle = document.getElementById('progressCircle');
-                const radius = 117;
+                const radius = 140;
                 const circumference = 2 * Math.PI * radius;
                 const progress = (this.totalSeconds - this.remainingSeconds) / this.totalSeconds;
                 const offset = circumference * (1 - progress);
+                circle.style.strokeDasharray = circumference;
                 circle.style.strokeDashoffset = offset;
             },
 
