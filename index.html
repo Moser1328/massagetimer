@@ -1559,8 +1559,8 @@
                     // Reload app settings
                     await app.loadGlobalSettings();
                 } catch (error) {
-                    alert('❌ Fehler beim Speichern');
-                    console.error(error);
+                    console.error('Save settings error:', error);
+                    alert('❌ Fehler beim Speichern: ' + error.message + '\n\nMöglicherweise fehlen Firestore-Berechtigungen. Prüfe die Firestore Rules!');
                 }
             },
 
@@ -1590,14 +1590,25 @@
 
             async loadUsers() {
                 try {
+                    console.log('Loading users...');
                     const usersSnapshot = await window.firebaseModules.getDocs(
                         window.firebaseModules.collection(window.db, 'users')
                     );
                     
+                    console.log('Users found:', usersSnapshot.size);
+                    
                     const users = [];
                     usersSnapshot.forEach((doc) => {
-                        users.push({ id: doc.id, ...doc.data() });
+                        const userData = doc.data();
+                        users.push({ 
+                            id: doc.id, 
+                            email: userData.email || 'Keine Email',
+                            specialInputCount: userData.specialInputCount || 0,
+                            isAdmin: userData.isAdmin === true
+                        });
                     });
+
+                    console.log('Processed users:', users);
 
                     // Get massage counts for each user
                     const massagesSnapshot = await window.firebaseModules.getDocs(
@@ -1613,7 +1624,7 @@
                     const container = document.getElementById('adminUserList');
                     
                     if (users.length === 0) {
-                        container.innerHTML = '<div class="empty-state"><p>Keine Benutzer gefunden</p></div>';
+                        container.innerHTML = '<div class="empty-state"><p style="color: rgba(255,255,255,0.6);">Keine Benutzer gefunden</p></div>';
                         return;
                     }
 
@@ -1622,7 +1633,7 @@
                             <div class="admin-user-email">${user.email}</div>
                             <div class="admin-user-stats">
                                 Massagen: ${massageCounts[user.id] || 0} | 
-                                Sondereingaben: ${user.specialInputCount || 0}/5
+                                Sondereingaben: ${user.specialInputCount}/5
                                 ${user.isAdmin ? ' | 🛠️ Admin' : ''}
                             </div>
                             <div class="admin-user-actions">
@@ -1637,6 +1648,14 @@
                     `).join('');
                 } catch (error) {
                     console.error('Error loading users:', error);
+                    const container = document.getElementById('adminUserList');
+                    container.innerHTML = `
+                        <div class="message error">
+                            ❌ Fehler beim Laden der Benutzer: ${error.message}
+                            <br><br>
+                            Prüfe die Firestore Berechtigungen!
+                        </div>
+                    `;
                 }
             },
 
